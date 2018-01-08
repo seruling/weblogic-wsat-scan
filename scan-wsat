@@ -1,0 +1,23 @@
+#!/bin/bash
+#based on https://github.com/c0mmand3rOpSec/CVE-2017-10271/blob/master/scanner.sh
+for i in $(cat list.txt) 
+do
+	curl https://$i/wls-wsat/CoordinatorPortType -k -s -m2 | grep "<h1>Web Services"
+	RESULT=$?
+	if [ $RESULT -eq 0 ]; then
+	echo -e "\e[91m[*] Potential Vuln: https://$i\e[0m"
+	echo "$i" >> vulns.txt
+	else
+	echo -e "\e[92m[*] Cleared: https://$i\e[0m"
+	fi
+	echo "$i" >> processed.txt
+	curl http://$i/wls-wsat/CoordinatorPortType -s -m2 | grep "<h1>Web Services"
+	RESULT=$?
+	if [ $RESULT -eq 0 ]; then
+	echo -e "\e[91m[*] Potential Vuln: http://$i\e[0m"
+	echo "$i" >> vulns.txt
+	else
+	echo -e "\e[92m[*] Cleared: http://$i\e[0m"
+	fi
+	echo "$i" >> processed.txt	
+done
